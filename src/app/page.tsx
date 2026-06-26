@@ -1,14 +1,30 @@
-import { Button } from "../components/ui/button";
-import { prisma } from "../lib/db";
+import { getQueryClient, trpc } from "@/trpc/server";
+import { HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { Client } from "./client";
+import { Suspense } from "react";
 
 const Page = async () => {
-  const users = await prisma.user.findMany();
+  const queryClient = getQueryClient();
+  void queryClient.prefetchQuery(trpc.createAI.queryOptions({ text: "world" }));
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      {JSON.stringify(users, null, 2)}
-    </div>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <Suspense fallback={<p>Loading...</p>}>
+        <Client />
+      </Suspense>
+    </HydrationBoundary>
   );
 };
 
 export default Page;
+
+/**
+ * For the Client:
+ * useTRPC along with useQuery is a common pattern for fetching data from a tRPC router in a React component.
+ *
+ *
+ * For the server:
+ * caller is used to call the tRPC router procedures directly on the server side, which is useful for server-side rendering or API routes.
+ *
+ * We also have a good option of Prefetching data on the server side and passing it to the client, which can improve performance and reduce loading times.
+ */

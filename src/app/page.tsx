@@ -1,13 +1,12 @@
 import { Button } from "../components/ui/button";
+import { prisma } from "../lib/db";
 
-const Page = () => {
+const Page = async () => {
+  const users = await prisma.user.findMany();
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <h1 className="text-4xl font-bold">Welcome to Vibe!</h1>
-      <p className="mt-4 text-lg text-gray-600">
-        This is the home page of your Vibe application.
-      </p>
-      <Button className="mt-6">Click Me</Button>
+      {JSON.stringify(users, null, 2)}
     </div>
   );
 };
